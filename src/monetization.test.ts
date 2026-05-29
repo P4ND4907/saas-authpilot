@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  buildLeadMailto,
   calculateRoi,
   recommendPlan,
   resolveCheckoutTarget,
@@ -48,43 +47,29 @@ describe("monetization helpers", () => {
     expect(recommendPlan(plans, 24000)?.name).toBe("Pilot");
   });
 
-  it("builds a mailto lead with the product, plan, ROI, and buyer context", () => {
-    const mailto = buildLeadMailto({
-      productName: "Money App",
-      buyer: "CFO",
-      planName: "Pilot",
-      annualSavings: 30000,
-      email: "sales@example.com",
-    });
-
-    expect(mailto).toContain("mailto:sales%40example.com");
-    expect(mailto).toContain("Money%20App");
-    expect(mailto).toContain("Pilot");
-    expect(mailto).toContain("%2430%2C000");
-    expect(mailto).toContain("CFO");
-  });
-
-  it("uses Stripe checkout when a payment link exists and falls back to lead capture", () => {
+  it("uses Stripe checkout when a payment link exists", () => {
     expect(
       resolveCheckoutTarget({
         stripeUrl: "https://buy.stripe.com/test_123",
-        fallbackUrl: "https://github.com/acme/app/issues/new",
       }),
     ).toEqual({
       href: "https://buy.stripe.com/test_123",
       label: "Checkout with Stripe",
       isStripe: true,
+      disabled: false,
     });
+  });
 
+  it("does not fall back to GitHub issues when Stripe is not configured", () => {
     expect(
       resolveCheckoutTarget({
         stripeUrl: "",
-        fallbackUrl: "https://github.com/acme/app/issues/new",
       }),
     ).toEqual({
-      href: "https://github.com/acme/app/issues/new",
-      label: "Request paid pilot",
+      href: "#stripe-checkout-required",
+      label: "Stripe checkout required",
       isStripe: false,
+      disabled: true,
     });
   });
 });

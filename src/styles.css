@@ -194,6 +194,13 @@ footer {
   box-shadow: 0 14px 30px color-mix(in srgb, var(--accent) 28%, transparent);
 }
 
+.primary-button.disabled,
+.secondary-link.disabled {
+  opacity: 0.64;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -697,6 +704,7 @@ footer strong {
   min-height: 42px;
   width: 100%;
   padding: 0 14px;
+  border: 0;
   border-radius: 8px;
   color: #fff;
   background: var(--accent);

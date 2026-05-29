@@ -21,6 +21,13 @@ export type RoiResult = {
   roiPercent: number;
 };
 
+export type CheckoutTarget = {
+  href: string;
+  label: string;
+  isStripe: boolean;
+  disabled: boolean;
+};
+
 function roundToOne(value: number): number {
   return Math.round(value * 10) / 10;
 }
@@ -51,75 +58,22 @@ export function recommendPlan(plans: PricingPlan[], annualSavings: number): Pric
   return sorted[0];
 }
 
-export function buildLeadMailto(input: {
-  productName: string;
-  buyer: string;
-  planName: string;
-  annualSavings: number;
-  email: string;
-}): string {
-  const savings = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(input.annualSavings);
-  const subject = encodeURIComponent(`${input.productName} paid pilot request`);
-  const body = encodeURIComponent(
-    `Product: ${input.productName}\nPlan: ${input.planName}\nBuyer: ${input.buyer}\nEstimated annual savings: ${savings}\n\nI want to discuss a paid pilot.`,
-  );
-
-  return `mailto:${encodeURIComponent(input.email)}?subject=${subject}&body=${body}`;
-}
-
-export function buildLeadIssueUrl(input: {
-  owner: string;
-  repo: string;
-  productName: string;
-  buyer: string;
-  planName: string;
-  annualSavings: number;
-}): string {
-  const savings = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(input.annualSavings);
-  const body = [
-    `Product: ${input.productName}`,
-    `Plan: ${input.planName}`,
-    `Buyer: ${input.buyer}`,
-    `Estimated annual savings: ${savings}`,
-    "",
-    "Pilot goal:",
-    "Timeline:",
-    "Current systems:",
-  ].join("\n");
-  const params = new URLSearchParams({
-    title: `[Pilot] ${input.productName} - ${input.planName}`,
-    body,
-  });
-
-  return `https://github.com/${input.owner}/${input.repo}/issues/new?${params.toString()}`;
-}
-
-export function resolveCheckoutTarget(input: {
-  stripeUrl?: string;
-  fallbackUrl: string;
-}): { href: string; label: string; isStripe: boolean } {
+export function resolveCheckoutTarget(input: { stripeUrl?: string }): CheckoutTarget {
   const stripeUrl = input.stripeUrl?.trim() ?? "";
-  const isStripe = stripeUrl.startsWith("https://buy.stripe.com/");
 
-  if (isStripe) {
+  if (stripeUrl.startsWith("https://buy.stripe.com/")) {
     return {
       href: stripeUrl,
       label: "Checkout with Stripe",
       isStripe: true,
+      disabled: false,
     };
   }
 
   return {
-    href: input.fallbackUrl,
-    label: "Request paid pilot",
+    href: "#stripe-checkout-required",
+    label: "Stripe checkout required",
     isStripe: false,
+    disabled: true,
   };
 }

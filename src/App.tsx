@@ -22,7 +22,7 @@ import {
   WalletCards,
 } from "lucide-react";
 import { calculateMetrics, currency, filterRecords, nextBestAction, type WorkItem, type WorkStatus } from "./domain";
-import { buildLeadIssueUrl, calculateRoi, recommendPlan, resolveCheckoutTarget, type PricingPlan } from "./monetization";
+import { calculateRoi, recommendPlan, resolveCheckoutTarget, type PricingPlan } from "./monetization";
 import { stripeLinksByPlan } from "./stripeLinks";
 import { initialRecords, product } from "./data";
 
@@ -68,17 +68,8 @@ function App() {
   const improvementRate = improvementPercent / 100;
   const roi = calculateRoi({ monthlyPain, improvementRate, annualPrice: selectedPlan.annualPrice });
   const recommendedPlan = recommendPlan(pricingPlans, roi.annualSavings);
-  const leadUrl = buildLeadIssueUrl({
-    owner: "P4ND4907",
-    repo: product.repo,
-    productName: product.name,
-    buyer: product.buyer,
-    planName: selectedPlan.name,
-    annualSavings: roi.annualSavings,
-  });
   const checkoutTarget = resolveCheckoutTarget({
     stripeUrl: stripeLinksByPlan[selectedPlan.name],
-    fallbackUrl: leadUrl,
   });
   const Icon = icons[product.icon as keyof typeof icons];
   const maxValue = Math.max(...records.map((item) => item.value));
@@ -137,10 +128,17 @@ function App() {
             <h1>{product.tagline}</h1>
             <p>{product.mission}</p>
           </div>
-          <a className="primary-button" href={checkoutTarget.href} target="_blank" rel="noreferrer">
-            <DollarSign size={18} />
-            {checkoutTarget.label}
-          </a>
+          {checkoutTarget.disabled ? (
+            <button className="primary-button disabled" type="button" disabled>
+              <DollarSign size={18} />
+              {checkoutTarget.label}
+            </button>
+          ) : (
+            <a className="primary-button" href={checkoutTarget.href} target="_blank" rel="noreferrer">
+              <DollarSign size={18} />
+              {checkoutTarget.label}
+            </a>
+          )}
         </header>
 
         <section className="stats-grid" aria-label="Workflow metrics">
@@ -224,9 +222,15 @@ function App() {
               <div><span>ROI</span><strong>{roi.roiPercent}%</strong></div>
             </div>
             <p className="proof-copy">{product.money.proof}</p>
-            <a className="secondary-link" href={checkoutTarget.href} target="_blank" rel="noreferrer">
-              {checkoutTarget.isStripe ? "Open Stripe checkout" : "Open paid pilot request"} <ExternalLink size={16} />
-            </a>
+            {checkoutTarget.disabled ? (
+              <button className="secondary-link disabled" type="button" disabled>
+                Stripe checkout required <ExternalLink size={16} />
+              </button>
+            ) : (
+              <a className="secondary-link" href={checkoutTarget.href} target="_blank" rel="noreferrer">
+                Open Stripe checkout <ExternalLink size={16} />
+              </a>
+            )}
             {recommendedPlan ? <small className="recommendation">Suggested package: {recommendedPlan.name}</small> : null}
           </div>
         </section>

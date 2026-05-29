@@ -7,7 +7,10 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "test": "vitest run",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview --host 0.0.0.0",
+    "pages:build": "npm run build && node scripts/copy-dist-to-docs.mjs",
+    "stripe:links": "node scripts/create-stripe-payment-links.mjs",
+    "ship:money": "npm run stripe:links && npm run pages:build"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",

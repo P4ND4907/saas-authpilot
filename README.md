@@ -2,7 +2,7 @@
 
 Specialty clinic prior-authorization copilot.
 
-This is a first-pass interactive MVP starter for the SaaS opportunity brief. It is intentionally narrow: a workflow command center with seeded domain records, local state, prioritization logic, status filtering, an assistant draft panel, and deployment-ready CI.
+This is a shippable static SaaS MVP for the opportunity brief. It includes the workflow command center, seeded domain records, prioritization logic, status filtering, ROI calculator, paid-pilot packaging, Stripe checkout wiring, tests, and a committed GitHub Pages build.
 
 ## MVP wedge
 
@@ -22,17 +22,36 @@ npm run dev
 
 ## Ship path
 
-The repo includes a committed `docs` build for GitHub Pages. Configure Pages to serve from `main` / `docs`.
+The repo serves GitHub Pages from `main` / `docs`. Use this when you update code or Stripe links:
+
+```bash
+npm run pages:build
+git add -A
+git commit -m "Update shipped site"
+git push
+```
 
 ## Money path
 
-The first sale should be a paid pilot, not a free demo.
+Checkout is Stripe-only. Buyers are not sent to GitHub Issues.
 
 - Pilot hook: Sell a paid clinic workflow mapping sprint before software access; convert the mapped packet checklist into the first pilot.
 - Close script: Pilot offer: reduce intake-to-submission time for a defined PA class or extend implementation support at no extra fee.
-- Checkout: Stripe Payment Links through `VITE_STRIPE_PILOT_URL`, `VITE_STRIPE_SCALE_URL`, and `VITE_STRIPE_ENTERPRISE_URL` at build time
-- Fallback lead capture: GitHub Issues prefilled from the in-app checkout CTA when Stripe links are not configured
+- Checkout links: `VITE_STRIPE_PILOT_URL`, `VITE_STRIPE_SCALE_URL`, and `VITE_STRIPE_ENTERPRISE_URL` at build time
 - Recommended first outreach: 25 hand-picked buyers with the ROI calculator screenshot and one workflow-specific audit offer
+
+Create live Stripe subscription Payment Links from the pricing table:
+
+```bash
+$env:STRIPE_SECRET_KEY="sk_live_your_key"
+npm run stripe:links
+npm run pages:build
+git add -A
+git commit -m "Ship live Stripe checkout"
+git push
+```
+
+The Stripe script writes `.env.production.local` for Vite and `stripe-links.json` for your records. The secret key is never committed.
 
 ### Pricing
 
